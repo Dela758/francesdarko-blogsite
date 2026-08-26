@@ -1,0 +1,61 @@
+# Enable local backend proxy when running `npm run cms` locally.
+# When decap-server is not active, Decap CMS seamlessly uses the GitHub backend.
+local_backend:
+  url: http://localhost:8081/api/v1
+
+backend:
+  name: github
+  repo: francesicodes/francesdarko-blogsite
+  branch: main
+
+media_folder: public/uploads
+public_folder: /uploads
+
+collections:
+  - name: posts
+    label: Essays
+    label_singular: Essay
+    folder: content/posts
+    create: true
+    extension: mdx
+    format: frontmatter
+    slug: "{{slug}}"
+    summary: "{{title}} — {{date}}"
+    fields:
+      - { label: Title, name: title, widget: string }
+      - { label: Publish date, name: date, widget: datetime, format: "YYYY-MM-DD", date_format: "MMMM D, YYYY", time_format: false }
+      - { label: Excerpt, name: excerpt, widget: text, hint: "A short summary used in the archive and search results." }
+      - { label: Featured essay, name: featured, widget: boolean, default: false, required: false }
+      - { label: Cover image, name: image, widget: image, required: false, hint: "Upload an image or paste a full URL." }
+      - { label: Image description, name: imageAlt, widget: string, required: false, hint: "Describe the image for readers using screen readers." }
+      - { label: Topics, name: tags, widget: list, required: false, allow_add: true }
+      - { label: Essay, name: body, widget: markdown }
+  - name: pages
+    label: Pages
+    extension: mdx
+    format: frontmatter
+    files:
+      - label: About page
+        name: about
+        file: content/pages/about.mdx
+        fields:
+          - { label: Page title, name: title, widget: string }
+          - { label: Portrait image, name: image, widget: image, required: false, hint: "Upload an image or paste a full URL." }
+          - { label: Portrait description, name: imageAlt, widget: string, required: false }
+          - { label: Writer's statement, name: body, widget: markdown }
+          - label: Curated Bookshelf
+            name: books
+            widget: list
+            required: false
+            summary: "{{fields.title}} by {{fields.author}} ({{fields.status}})"
+            fields:
+              - { label: ISBN, name: isbn, widget: string, hint: "10 or 13 digit ISBN (e.g. 9780807064733). Used to fetch book cover & metadata." }
+              - { label: Book title, name: title, widget: string }
+              - { label: Author, name: author, widget: string }
+              - label: Reading Status
+                name: status
+                widget: select
+                options: ["Currently Reading", "Re-reading", "Foundational"]
+                default: "Currently Reading"
+              - { label: Personal Reflection Note, name: note, widget: string, hint: "A short reflective note on why this book is meaningful." }
+
