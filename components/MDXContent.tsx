@@ -9,7 +9,11 @@ const mdxComponents = {
   WikiPreview,
   img: ({ src, alt, ...props }: React.ImgHTMLAttributes<HTMLImageElement>) => (
     // eslint-disable-next-line @next/next/no-img-element
-    <img src={normalizeImageUrl(src)} alt={alt ?? ""} {...props} />
+    <img
+      src={typeof src === "string" ? normalizeImageUrl(src) : undefined}
+      alt={alt ?? ""}
+      {...props}
+    />
   ),
 };
 
