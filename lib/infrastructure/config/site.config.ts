@@ -3,7 +3,7 @@ export const siteConfig = {
   tagline: "On the quiet art of observation.",
   description:
     "Exploring the subtle architectures of daily life, memory, and the unspoken spaces between words. A collection of thoughts on living deliberately in a noisy world.",
-  url: "https://francesdarko.com",
+  url: "https://www.francesdarko.com",
   author: "Frances Darko",
   email: "francesndarko@gmail.com",
   social: {

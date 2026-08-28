@@ -7,7 +7,7 @@ backend:
   name: github
   repo: francesicodes/francesdarko-blogsite
   branch: main
-  base_url: https://francesdarko.com
+  base_url: https://www.francesdarko.com
   auth_endpoint: api/auth
 
 media_folder: public/uploads
