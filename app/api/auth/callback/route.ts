@@ -66,43 +66,110 @@ function buildHtmlResponse(status: "success" | "error", payload: Record<string, 
       : `authorization:github:error:${JSON.stringify(payload)}`;
 
   const html = `<!doctype html>
-<html>
-<head><title>Authenticating…</title></head>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Authenticating — Frances Darko</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      background: #faf8f5;
+      color: #2b2927;
+      text-align: center;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    .card {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      max-width: 400px;
+      width: 100%;
+    }
+    .status {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+    }
+    .desc {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 1.5rem;
+    }
+    .btn {
+      display: inline-block;
+      background: #2b2927;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border: none;
+    }
+    .btn:hover {
+      background: #444;
+    }
+  </style>
+</head>
 <body>
+  <div class="card">
+    <div class="status">${status === "success" ? "✓ Logged in successfully!" : "✕ Authentication failed"}</div>
+    <div class="desc">${status === "success" ? "Connecting to Decap CMS… This window should close automatically." : (payload.message || "An error occurred.")}</div>
+    <button class="btn" onclick="tryClose()">Close window</button>
+  </div>
+
 <script>
   (function () {
-    function receiveMessage(e) {
-      console.log("Decap CMS auth handshake received:", e);
-      if (!e.data || typeof e.data !== "string" || !e.data.match(/^authorizing:github$/)) {
-        return;
+    const content = ${JSON.stringify(content)};
+    
+    function send() {
+      if (window.opener) {
+        window.opener.postMessage(content, "*");
+        window.opener.postMessage("authorizing:github", "*");
       }
-      const content = ${JSON.stringify(content)};
-      window.opener.postMessage(content, e.origin);
-      window.removeEventListener("message", receiveMessage, false);
-      window.close();
+    }
+
+    function receiveMessage(e) {
+      if (e.data === "authorizing:github" && window.opener) {
+        window.opener.postMessage(content, e.origin);
+        setTimeout(tryClose, 300);
+      }
     }
 
     window.addEventListener("message", receiveMessage, false);
 
-    // Initiate Decap CMS OAuth handshake
-    if (window.opener) {
-      window.opener.postMessage("authorizing:github", "*");
-      // Fallback in case opener does not respond to handshake
-      setTimeout(function () {
-        const content = ${JSON.stringify(content)};
-        window.opener.postMessage(content, "*");
-        window.close();
-      }, 1000);
-    } else {
-      console.error("Decap CMS: No window.opener found.");
-    }
+    // Send immediately and repeat every 200ms
+    send();
+    const timer = setInterval(send, 200);
+
+    // Stop after 3 seconds and attempt to close
+    setTimeout(function () {
+      clearInterval(timer);
+      tryClose();
+    }, 2500);
   })();
+
+  function tryClose() {
+    try {
+      window.close();
+    } catch (e) {}
+  }
 </script>
-<p>Authentication ${status === "success" ? "successful" : "failed"}. Completing login…</p>
 </body>
 </html>`;
 
   return new NextResponse(html, {
-    headers: { "Content-Type": "text/html" },
+    headers: { 
+      "Content-Type": "text/html; charset=utf-8",
+    },
   });
 }
