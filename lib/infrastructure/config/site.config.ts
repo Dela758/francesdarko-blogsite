@@ -13,9 +13,9 @@ export const siteConfig = {
   },
   giscus: {
     repo: process.env.NEXT_PUBLIC_GISCUS_REPO || "francesicodes/francesdarko-blogsite",
-    repoId: process.env.NEXT_PUBLIC_GISCUS_REPO_ID || "",
+    repoId: process.env.NEXT_PUBLIC_GISCUS_REPO_ID || "R_kgDOTxgJIQ",
     category: process.env.NEXT_PUBLIC_GISCUS_CATEGORY || "Announcements",
-    categoryId: process.env.NEXT_PUBLIC_GISCUS_CATEGORY_ID || "",
+    categoryId: process.env.NEXT_PUBLIC_GISCUS_CATEGORY_ID || "DIC_kwDOTxgJIc4DC4sN",
   },
   nav: [
     { label: "Home", href: "/" },
