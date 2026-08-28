@@ -1,8 +1,3 @@
-# Enable local backend proxy when running `npm run cms` locally.
-# When decap-server is not active, Decap CMS seamlessly uses the GitHub backend.
-local_backend:
-  url: http://localhost:8081/api/v1
-
 backend:
   name: github
   repo: francesicodes/francesdarko-blogsite

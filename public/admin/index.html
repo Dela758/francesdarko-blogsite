@@ -7,6 +7,13 @@
   <link href="/admin/config.yml" type="text/yaml" rel="cms-config-url" />
 </head>
 <body>
+  <script>
+    window.addEventListener('message', function(event) {
+      if (typeof event.data === 'string' && event.data.includes('authoriz')) {
+        console.log('[Decap Auth Debug] Message received:', event.data, 'from origin:', event.origin);
+      }
+    });
+  </script>
   <!-- Decap CMS App Root -->
   <script src="https://unpkg.com/decap-cms@^3/dist/decap-cms.js"></script>
 </body>
