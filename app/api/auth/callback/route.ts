@@ -71,15 +71,34 @@ function buildHtmlResponse(status: "success" | "error", payload: Record<string, 
 <body>
 <script>
   (function () {
-    const content = ${JSON.stringify(content)};
-    // Post to opener (the Decap CMS window)
-    if (window.opener) {
-      window.opener.postMessage(content, "*");
+    function receiveMessage(e) {
+      console.log("Decap CMS auth handshake received:", e);
+      if (!e.data || typeof e.data !== "string" || !e.data.match(/^authorizing:github$/)) {
+        return;
+      }
+      const content = ${JSON.stringify(content)};
+      window.opener.postMessage(content, e.origin);
+      window.removeEventListener("message", receiveMessage, false);
+      window.close();
     }
-    window.close();
+
+    window.addEventListener("message", receiveMessage, false);
+
+    // Initiate Decap CMS OAuth handshake
+    if (window.opener) {
+      window.opener.postMessage("authorizing:github", "*");
+      // Fallback in case opener does not respond to handshake
+      setTimeout(function () {
+        const content = ${JSON.stringify(content)};
+        window.opener.postMessage(content, "*");
+        window.close();
+      }, 1000);
+    } else {
+      console.error("Decap CMS: No window.opener found.");
+    }
   })();
 </script>
-<p>Authentication ${status === "success" ? "successful" : "failed"}. You may close this window.</p>
+<p>Authentication ${status === "success" ? "successful" : "failed"}. Completing login…</p>
 </body>
 </html>`;
 
