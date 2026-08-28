@@ -39,6 +39,16 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.francesdarko.com" }],
+        destination: "https://francesdarko.com/:path*",
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {

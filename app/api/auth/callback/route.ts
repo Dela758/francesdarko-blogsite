@@ -130,32 +130,46 @@ function buildHtmlResponse(status: "success" | "error", payload: Record<string, 
 <script>
   (function () {
     const content = ${JSON.stringify(content)};
-    
-    function send() {
-      if (window.opener) {
-        window.opener.postMessage(content, "*");
-        window.opener.postMessage("authorizing:github", "*");
+    let delivered = false;
+
+    function deliver(targetOrigin) {
+      if (delivered || !window.opener) return;
+      delivered = true;
+      try {
+        window.opener.postMessage(content, targetOrigin || "*");
+      } catch (err) {
+        console.error("postMessage error:", err);
       }
+      setTimeout(tryClose, 300);
     }
 
     function receiveMessage(e) {
-      if (e.data === "authorizing:github" && window.opener) {
-        window.opener.postMessage(content, e.origin);
-        setTimeout(tryClose, 300);
+      if (e.data === "authorizing:github") {
+        deliver(e.origin);
       }
     }
 
     window.addEventListener("message", receiveMessage, false);
 
-    // Send immediately and repeat every 200ms
-    send();
-    const timer = setInterval(send, 200);
+    if (window.opener) {
+      // Step 1: Send handshake initiation
+      window.opener.postMessage("authorizing:github", "*");
 
-    // Stop after 3 seconds and attempt to close
-    setTimeout(function () {
-      clearInterval(timer);
-      tryClose();
-    }, 2500);
+      // Step 2: In case opener already transitioned or missed handshake, repeat with fallback
+      let attempts = 0;
+      const interval = setInterval(function () {
+        if (delivered || !window.opener || attempts >= 8) {
+          clearInterval(interval);
+          if (!delivered) {
+            deliver("*");
+          }
+          return;
+        }
+        attempts++;
+        window.opener.postMessage("authorizing:github", "*");
+        window.opener.postMessage(content, "*");
+      }, 250);
+    }
   })();
 
   function tryClose() {
